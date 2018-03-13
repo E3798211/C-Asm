@@ -1,0 +1,6 @@
+#!/bin/bash
+
+g++ main.cpp -c -std=c++14 -m64 -o main.o
+nasm -f elf64 printf.asm
+g++ main.o printf.o -m64 -o main
+./main
