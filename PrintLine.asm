@@ -26,7 +26,7 @@ printLine:
 .load:	
 		cmp byte [rsi], 0				; Terminator
 		je  .exit
-		cmp byte [rsi], '\'				; Screened symbol
+		cmp byte [rsi], '|'				; Screened symbol
 		je  .special
 		cmp byte [rsi], '%'
 		jne .print						; Average - just print

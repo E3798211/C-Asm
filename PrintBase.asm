@@ -7,8 +7,8 @@
 ; Leaves:	...
 
 printBin:
-		mov rcx, 64d
-		mov esi, BUFF + 63d
+		xor rdx, rdx
+		mov rsi, BUFF + 63d
 .next_digit:
 		mov r10, r8
 		and r10, 1b
@@ -16,17 +16,17 @@ printBin:
 
 		add r10, '0'					; Now in r11 '0' or '1'
 		mov [esi], r10b					; Placing lowest byte to buff
-		dec esi
+		dec rsi
+		inc rdx
 
-		loop .next_digit
+		cmp r8, 0
+		jne .next_digit
 
+		inc rsi
 		mov rax, 1
 		mov rdi, 1
-		mov rdx, 64d
-		mov rsi, BUFF	
 		syscall
 
-;		call flushBuff
 		ret
 
 ; ======================================
@@ -35,32 +35,32 @@ printBin:
 ; Expects:	number in r8
 ;			64-byte buffer called BUFF
 ;			1 in rax
-;			1 in rdx
 ;			1 in rdi
 ; Uses:		rcx, esi, r8, r9, r10
 ; Leaves:	...
 
 printOct:
-		mov rcx, 22d
-		mov esi, BUFF + 63d
+		xor rdx, rdx
+		mov rsi, BUFF + 63d
 .next_digit:
 		mov r10, r8
 		and r10, 111b
 		shr r8, 3d
 
-		add r10, '0'					; Now in r11 '0'-'1'
-		mov [esi], r10b					; Placing lowest byte to buff
-		dec esi
+		add r10, '0'					; Now in r10 '0'-'7'
+		mov [rsi], r10b					; Placing lowest byte to buff
+		dec rsi
+		inc rdx
 
-		loop .next_digit
+		cmp r8, 0
+		jne .next_digit
+
+		inc rsi
 
 		mov rax, 1
 		mov rdi, 1
-		mov rdx, 64d
-		mov rsi, BUFF	
 		syscall
 
-;		call flushBuff
 		ret
 
 ; =======================================
@@ -75,7 +75,7 @@ printOct:
 ; Leaves:	...
 
 printHex:
-		mov rcx, 16d
+		xor rdx, rdx
 		mov esi, BUFF + 63d
 .next_digit:
 		mov r10, r8
@@ -90,16 +90,16 @@ printHex:
 
 		mov [esi], r10b					; Placing lowest byte to buff
 		dec esi
+		inc rdx
 
-		loop .next_digit
+		cmp r8, 0
+		jne .next_digit
 
+		inc rsi
 		mov rax, 1
 		mov rdi, 1
-		mov rdx, 64d
-		mov rsi, BUFF
 		syscall
 
-;		call flushBuff
 		ret
 
 ; ======================================
@@ -112,7 +112,7 @@ printHex:
 ; Leaves:	...
 
 printDec:
-		mov rcx, 22d
+		xor r9, r9
 		mov r10, 10d
 		mov esi, BUFF + 63
 .next_digit:
@@ -124,16 +124,17 @@ printDec:
 		add rdx, '0'					; Now in rdx '0' - '9'
 		mov [rsi], dl					; Placing remainder to buff
 		dec esi
+		inc r9
 
-		loop .next_digit
+		cmp r8, 0
+		jne .next_digit
 		
-		mov rax, 1
-		mov rdi, 1
-		mov rdx, 64
-		mov esi, BUFF
+		inc rsi
+		mov rdx, r9
+		mov rax, 1d
+		mov rdi, 1d
 		syscall
 		
-;		call flushBuff
 		ret
 
 ; ======================================
@@ -155,9 +156,6 @@ printChr:
 		mov rdx, 1
 		syscall
 
-		mov byte [BUFF], '0'			; Restoring buffer
-
-;		call flushBuff
 		ret
 
 ; ======================================
@@ -183,7 +181,6 @@ printStr:
 		jmp .next
 
 .exit:
-;		call flushBuff
 		ret
 
 ; ======================================
@@ -218,29 +215,9 @@ printSpec:
 		mov rdx, 6
 		jmp .print
 .default:
-		mov byte [BUFF], r8b
+		mov byte [rsi], r8b
 
 .print:		
 		syscall
-		mov byte [BUFF], '0'
-
-;		call flushBuff
 		ret
-
-; ======================================
-
-; Expects:	nothing
-; Uses:		al, rcx, edi
-; Leaves:	...
-
-flushBuff:
-nop
-nop
-nop
-		mov edi, BUFF
-		mov al,  0
-		mov rcx, 64
-rep		stosb
-		ret
-
 
